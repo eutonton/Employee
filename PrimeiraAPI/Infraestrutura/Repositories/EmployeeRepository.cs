@@ -1,6 +1,6 @@
 ﻿using PrimeiraAPI.Model;
 
-namespace PrimeiraAPI.Infraestrutura
+namespace PrimeiraAPI.Infraestrutura.Repositores
 {
     public class EmployeeRepository : IEmployeeRepository
     {
@@ -16,7 +16,7 @@ namespace PrimeiraAPI.Infraestrutura
             return _context.Employees.Skip(pageNumber * pageQuantity).Take(pageQuantity).ToList();
         }
 
-        public Employee? Get(int id) 
+        public Employee? Get(int id)
         {
             return _context.Employees.Find(id);
         }

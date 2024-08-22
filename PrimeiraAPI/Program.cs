@@ -1,91 +1,108 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using PrimeiraAPI.Infraestrutura;
+using Microsoft.AspNetCore.Mvc.Versioning;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using PrimeiraAPI.Model;
+using System.Collections.Generic;
 using System.Text;
+using Microsoft.AspNetCore.Mvc;
+using PrimeiraAPI.Infraestrutura.Repositores;
 
+var builder = WebApplication.CreateBuilder(args);
 
+// Adiciona serviços ao contêiner
+builder.Services.AddControllers();
 
-        var builder = WebApplication.CreateBuilder(args);
+// Configura o versionamento da API
+builder.Services.AddApiVersioning(config =>
+{
+    config.DefaultApiVersion = new ApiVersion(1, 0);
+    config.AssumeDefaultVersionWhenUnspecified = true;
+    config.ReportApiVersions = true;
+});
 
-        // Add services to the container.
+// Adiciona a exploração de versão da API
+builder.Services.AddVersionedApiExplorer(options =>
+{
+    options.GroupNameFormat = "'v'VVV";
+    options.SubstituteApiVersionInUrl = true;
+});
 
-        builder.Services.AddControllers();
-        // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-        builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen(c =>
-        {
-           
-            c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-            {
-                Name = "Authorization",
-                In = ParameterLocation.Header,
-                Type = SecuritySchemeType.ApiKey,
-                Scheme = "Bearer"
-            });
-
-            c.AddSecurityRequirement(new OpenApiSecurityRequirement()
-            {
+// Configuração do Swagger
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        new OpenApiSecurityScheme
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
         {
-        Reference = new OpenApiReference
+            new OpenApiSecurityScheme
             {
-            Type = ReferenceType.SecurityScheme,
-            Id = "Bearer"
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                },
+                Scheme = "oauth2",
+                Name = "Bearer",
+                In = ParameterLocation.Header
             },
-            Scheme = "oauth2",
-            Name = "Bearer",
-            In = ParameterLocation.Header,
-
-        },
-        new List<string>()
+            new List<string>()
         }
-            });
+    });
 
+    // Configura o Swagger para incluir a versão
+    c.DocInclusionPredicate((docName, apiDesc) => true);
+});
 
-        });
+// Configuração de CORS
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.WithOrigins("http://127.0.0.1:5500", "https://localhost:7249")
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
 
-        builder.Services.AddTransient<IEmployeeRepository, EmployeeRepository>();
+// Adiciona o repositório
+builder.Services.AddTransient<IEmployeeRepository, EmployeeRepository>();
 
-        var key = Encoding.ASCII.GetBytes(PrimeiraAPI.Key.Secret);
+var app = builder.Build();
 
-        builder.Services.AddAuthentication(x =>
+// Configuração do middleware
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
+    {
+        var versionProvider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
+        foreach (var description in versionProvider.ApiVersionDescriptions)
         {
-            x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-        }).AddJwtBearer(x =>
-        {
-            x.RequireHttpsMetadata = false;
-            x.SaveToken = true;
-            x.TokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(key),
-                ValidateIssuer = false,
-                ValidateAudience = false
-            };
-        });
-
-        var app = builder.Build();
-
-        // Configure the HTTP request pipeline.
-        if (app.Environment.IsDevelopment())
-        {
-            app.UseExceptionHandler("/error-development");
-            app.UseSwagger();
-            app.UseSwaggerUI();
-        }else 
-        {
-            app.UseExceptionHandler("/error");
+            options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", $"Web Api - {description.GroupName.ToUpper()}");
         }
+    });
+}
+else
+{
+    app.UseExceptionHandler("/error");
+}
 
-        app.UseHttpsRedirection();
+app.UseHttpsRedirection();
+app.UseRouting();
+app.UseCors();
+app.UseAuthorization();
+app.MapControllers();
 
-        app.UseAuthorization();
-
-        app.MapControllers();
-
-        app.Run();
-    
+app.Run();

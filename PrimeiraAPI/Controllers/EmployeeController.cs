@@ -18,7 +18,7 @@ namespace PrimeiraAPI.Controllers
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        [Authorize]
+        //[Authorize]
         [HttpPost]
         public IActionResult Add([FromForm] EmployeeViewModel employeeView)
         {
@@ -33,31 +33,46 @@ namespace PrimeiraAPI.Controllers
             return Ok();
         }
 
-        [Authorize]
+        //[Authorize]
         [HttpPost]
         [Route("{id}/download")]
-        public IActionResult DownloadPhoto(int id) 
-        { 
-             var employee = _employeeRepository.Get(id);
+        public IActionResult DownloadPhoto(int id)
+        {
+            var employee = _employeeRepository.Get(id);
+            if (employee == null)
+            {
+                return NotFound("Funcionário não encontrado.");
+            }
 
-             var dataBytes = System.IO.File.ReadAllBytes(employee.photo);
+            if (string.IsNullOrEmpty(employee.photo) || !System.IO.File.Exists(employee.photo))
+            {
+                return NotFound("Foto não encontrada.");
+            }
 
-             return File(dataBytes, "image/png");
+            var dataBytes = System.IO.File.ReadAllBytes(employee.photo);
+           
+
+            return File(dataBytes, "image/png");
         }
+
+             
+        
 
         //[Authorize]
         [HttpGet]
-        public IActionResult Get(int pageNumber, int pageQuantity)
+        [HttpGet]
+        public IActionResult Get([FromQuery] int pageNumber, [FromQuery] int pageQuantity)
         {
             _logger.Log(LogLevel.Error, "Teve um erro");
 
-            throw new Exception("Erro de teste");
+            //throw new Exception("Erro de teste");
 
-            var employees = _employeeRepository.Get( pageNumber , pageQuantity);
+            var employees = _employeeRepository.Get(pageNumber, pageQuantity);
 
             _logger.LogInformation("Teste");
 
             return Ok(employees);
         }
+
     }
 }
