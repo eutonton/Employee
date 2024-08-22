@@ -1,0 +1,119 @@
+/* Define uma fonte padrão e margens para o body */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f7f9;
+    color: #333;
+    margin: 0;
+    padding: 20px;
+}
+
+/* Estilo para o título */
+h1 {
+    color: #0056b3;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Centraliza o formulário e define a largura máxima */
+form {
+    max-width: 500px;
+    margin: auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilo para os labels */
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #0056b3;
+}
+
+/* Estilo para os campos de entrada */
+input[type="text"],
+input[type="number"],
+input[type="file"] {
+    width: calc(100% - 20px);
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+/* Estilo para o botão de envio */
+button {
+    width: 100%;
+    padding: 12px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    margin-bottom: 10px; /* Espaçamento entre os botões */
+}
+
+/* Efeito ao passar o mouse sobre o botão */
+button:hover {
+    background-color: #0056b3;
+}
+
+/* Efeito ao focar nos campos de entrada */
+input:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 3px rgba(0, 123, 255, 0.5);
+}
+
+/* Estilo para mensagens de erro */
+.error-message {
+    color: #dc3545;
+    font-size: 14px;
+    margin-top: -10px;
+    margin-bottom: 15px;
+}
+
+/* Adiciona estilos para a lista de funcionários */
+#employee-list {
+    margin-top: 20px;
+}
+
+.employee {
+    padding: 15px;
+    margin-bottom: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.employee h2 {
+    margin: 0;
+    color: #0056b3;
+}
+
+.employee p {
+    margin: 5px 0;
+}
+
+.employee-photo {
+    max-width: 100px;
+    height: auto;
+    display: block;
+    margin-top: 10px;
+}
+
+/* Estilo para o botão de visualizar funcionários */
+#view-employees {
+    background-color: #007bff;
+}
+
+/* Efeito ao passar o mouse sobre o botão de visualizar funcionários */
+#view-employees:hover {
+    background-color: #0056b3;
+}
